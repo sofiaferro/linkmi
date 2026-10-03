@@ -71,12 +71,11 @@ body {
     0 0 4px rgb(var(--ink-inv));
 }
 
-/* Opacity and transform only: both run on the compositor, so the entrance stays smooth
-   even while the main thread is busy hydrating. An animated blur would not. */
 @keyframes lp-rise {
   from {
     opacity: 0;
     transform: translateY(8px);
+    filter: blur(4px);
   }
 }
 
