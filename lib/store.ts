@@ -15,10 +15,14 @@ const keys = {
   page: (h: string) => `page:${h}`,
   owner: (h: string) => `owner:${h}`,
   meta: (h: string) => `meta:${h}`,
+  renamed: (h: string) => `renamed:${h}`,
 };
+/** Owner key of a page, for scripts in lib/auth.ts that must read it atomically. */
+export const ownerKey = keys.owner;
 
 export const pageTag = (handle: string) => `page:${handle}`;
-const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
+export const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
+export const newToken = () => randomBytes(24).toString("base64url");
 
 export async function getPage(handle: string): Promise<PageConfig | null> {
   "use cache";
@@ -34,18 +38,32 @@ export async function isTaken(handle: string): Promise<boolean> {
   return (await redis.exists(keys.owner(handle))) === 1;
 }
 
+// Claiming also wipes edit access a previous page with this handle may have left behind
+// (passkeys, the passkey user id, the session index), in the same step as the claim.
+const CLAIM = `if not redis.call('SET', KEYS[1], ARGV[1], 'NX') then return 0 end
+redis.call('DEL', KEYS[4], KEYS[5], KEYS[6])
+redis.call('SET', KEYS[2], ARGV[2])
+redis.call('SET', KEYS[3], ARGV[3])
+return 1`;
+
 /** Atomically claims a handle. Returns the plain edit token once, or null if already taken. */
 export async function claimPage(handle: string, config: PageConfig): Promise<string | null> {
   if (!redis) return null;
-  const editToken = randomBytes(24).toString("base64url");
-  const claimed = await redis.set(keys.owner(handle), sha256(editToken), { nx: true });
-  if (!claimed) return null;
+  const editToken = newToken();
   const now = Date.now();
-  await redis.mset({
-    [keys.page(handle)]: config,
-    [keys.meta(handle)]: { createdAt: now, updatedAt: now },
-  });
-  return editToken;
+  const claimed = await redis.eval(
+    CLAIM,
+    [keys.owner(handle), keys.page(handle), keys.meta(handle), `passkeys:${handle}`, `pkuid:${handle}`, `sessions:${handle}`],
+    [sha256(editToken), JSON.stringify(config), JSON.stringify({ createdAt: now, updatedAt: now })],
+  );
+  return claimed === 1 ? editToken : null;
+}
+
+/** Where scripts/rename.mjs moved a handle, so edit links and stored tokens keep working. */
+export async function renamedTo(handle: string): Promise<string | null> {
+  // String(): Upstash parses values as JSON, so a handle like "2024" would come back as a number.
+  const moved = redis ? await redis.get(keys.renamed(handle)) : null;
+  return moved === null ? null : String(moved);
 }
 
 export async function verifyOwner(handle: string, editToken: string): Promise<boolean> {
@@ -57,12 +75,7 @@ export async function verifyOwner(handle: string, editToken: string): Promise<bo
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-export async function updatePage(handle: string, editToken: string, config: PageConfig): Promise<boolean> {
-  if (!(await verifyOwner(handle, editToken))) return false;
-  const meta = (await redis!.get<{ createdAt: number }>(keys.meta(handle))) ?? { createdAt: Date.now() };
-  await redis!.mset({
-    [keys.page(handle)]: config,
-    [keys.meta(handle)]: { ...meta, updatedAt: Date.now() },
-  });
-  return true;
+/** The hash of the page's current edit token. It changes on every new link, voiding link sessions. */
+export async function ownerHash(handle: string): Promise<string | null> {
+  return redis ? redis.get<string>(keys.owner(handle)) : null;
 }

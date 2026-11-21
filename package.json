@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@simplewebauthn/browser": "14.0.0",
+    "@simplewebauthn/server": "14.1.0",
     "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.39.0",
     "@vercel/blob": "^2.8.0",

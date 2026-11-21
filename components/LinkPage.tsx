@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import ShaderCanvas from "./ShaderCanvas";
 import { FONTS, sanitizeUrl, type PageConfig } from "@/lib/config";
 
@@ -101,9 +100,10 @@ export default function LinkPage({ config, contained = false, footer = true, rep
         {footer ? (
           <div className="mt-auto pt-16 font-mono text-[10px] uppercase tracking-[0.2em]">
             <div className="lp-label flex gap-6">
-              <Link href="/editor" className="opacity-40 transition-opacity hover:opacity-100">
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- full page load: the editor's CSP (proxy.ts) only covers documents it serves */}
+              <a href="/editor" className="opacity-40 transition-opacity hover:opacity-100">
                 linkmi · creá la tuya →
-              </Link>
+              </a>
               {reportEmail ? (
                 <a
                   href={`mailto:${reportEmail}?subject=${encodeURIComponent(`reporte: ${config.name}`)}`}

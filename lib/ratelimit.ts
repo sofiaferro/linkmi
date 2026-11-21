@@ -9,6 +9,11 @@ export const limiters = redis
       save: new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(60, "1 h"), prefix: "rl:save" }),
       upload: new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(10, "1 h"), prefix: "rl:upload" }),
       import: new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(20, "1 h"), prefix: "rl:import" }),
+      // Opening edit links, passkey sign-ins and passkey changes.
+      auth: new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(30, "1 h"), prefix: "rl:auth" }),
+      // WebAuthn options, fetched ahead of the click; each only stores a 5-minute challenge.
+      challenge: new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(120, "1 h"), prefix: "rl:challenge" }),
+      report: new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(60, "1 h"), prefix: "rl:report" }),
     }
   : null;
 

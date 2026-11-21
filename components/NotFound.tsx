@@ -28,12 +28,13 @@ export default function NotFound() {
           </p>
         ) : null}
         <div className="mt-2 flex flex-wrap justify-center gap-3">
-          <Link
+          {/* Full page load, not <Link>: the editor's CSP (proxy.ts) only covers documents it serves. */}
+          <a
             href={claimable ? `/editor?claim=${encodeURIComponent(handle)}` : "/editor"}
             className="rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-transform active:scale-[0.97]"
           >
             {claimable ? `crear /${handle}` : "crear mi página"}
-          </Link>
+          </a>
           <Link href="/" className="lp-glass rounded-full px-6 py-3 text-sm text-white [--ink:255_255_255]">
             ir al inicio
           </Link>

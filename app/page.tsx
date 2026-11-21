@@ -40,12 +40,13 @@ export default function Home() {
             listo: sin cuentas ni contraseñas.
           </p>
           <div className="lp-rise mt-10 flex flex-wrap gap-3" style={{ animationDelay: "160ms" }}>
-            <Link
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- full page load: the editor's CSP (proxy.ts) only covers documents it serves */}
+            <a
               href="/editor"
               className="rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-transform active:scale-[0.97]"
             >
               crear mi página
-            </Link>
+            </a>
             <Link
               href="/sofiferro"
               className="lp-glass rounded-full px-6 py-3 text-sm text-white [--ink:255_255_255]"

@@ -1,13 +1,14 @@
 // Removes a published page and frees its handle.
 // Usage: node --env-file=.env.local scripts/takedown.mjs <handle>
-import { redis } from "./redis.mjs";
+import { deletePage } from "./redis.mjs";
 
 const handle = process.argv[2];
 if (!handle) {
   console.error("Usage: scripts/takedown.mjs <handle>");
   process.exit(1);
 }
-const removed = await redis.del(`page:${handle}`, `owner:${handle}`, `meta:${handle}`);
+// Edit access goes with the page, in the same step (see lib/auth.ts).
+const removed = await deletePage(handle);
 if (!removed) {
   console.log(`"${handle}" not found.`);
   process.exit(0);
