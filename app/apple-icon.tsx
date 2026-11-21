@@ -3,17 +3,17 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-/** Same cell mark as app/icon.svg; iOS adds its own rounded corners, so the square is full-bleed. */
+/** Instrument Serif italic "l" outlined to a path, as in app/icon.svg. */
+const L =
+  "M14.60 29.80Q13.42 29.80 12.92 28.92Q12.42 28.04 12.88 26.04L17.44 6.49Q17.62 5.85 17.45 5.60Q17.29 5.35 16.79 5.31L15.72 5.20Q15.18 5.17 15.25 4.74Q15.32 4.41 15.75 4.34Q17.04 4.13 18.05 3.82Q19.05 3.52 19.66 3.02Q19.95 2.80 20.20 2.80Q20.63 2.80 20.52 3.34L15.21 26.07Q15.03 26.86 15.16 27.31Q15.29 27.76 15.82 27.76Q16.47 27.76 17.24 26.81Q18.01 25.86 18.98 23.20Q19.12 22.74 19.48 22.74Q20.02 22.74 19.77 23.38Q19.01 25.82 18.10 27.24Q17.19 28.65 16.29 29.23Q15.39 29.80 14.60 29.80Z";
+
+/** Same mark as app/icon.svg; iOS adds its own rounded corners, so the square is full-bleed and the "l" gets extra margin. */
 export default function AppleIcon() {
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", background: "#0a0a0a" }}>
-        <svg width="180" height="180" viewBox="0 0 32 32" fill="none" stroke="#d4ff3a" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M10.6 10.2 L5.6 5.4 M21.6 10.6 L26.6 5.8 M21.2 21 L26.4 26.4 M10.4 21.2 L5.4 26.6" strokeWidth="1.7" opacity="0.5" />
-          <path
-            d="M10.6 10.2 C13.6 7.6 19.2 7.8 21.6 10.6 C24 13.3 23.6 18.2 21.2 21 C18.6 23.9 13 24 10.4 21.2 C7.8 18.4 7.9 12.6 10.6 10.2 Z"
-            strokeWidth="2.6"
-          />
+      <div style={{ width: "100%", height: "100%", display: "flex", background: "#d4ff3a" }}>
+        <svg width="180" height="180" viewBox="-3 -3 38 38">
+          <path d={L} fill="#0a0a0a" stroke="#0a0a0a" strokeWidth="1.1" strokeLinejoin="round" />
         </svg>
       </div>
     ),
